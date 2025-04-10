@@ -1,0 +1,1 @@
+{"cmakeArgs":["-DBUILD_SHARED_LIBS=OFF","-DCMAKE_CXX_COMPILER=clang++","-DCMAKE_C_COMPILER=clang"],"libs":{"fmt":{"buildLocal":false,"cmakeArgs":["-DBUILD_SHARED_LIBS=OFF","-DCMAKE_CXX_COMPILER=clang++","-DCMAKE_C_COMPILER=clang"],"url":"https://github.com/fmtlib/fmt.git"}}}
