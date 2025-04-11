@@ -8,12 +8,13 @@
 #include <sstream>
 #include <algorithm>
 #include <boost/process.hpp>
-#include<tervinalconfig.h>
+#include <tervinalconfig.h>
 constexpr int WIDTH{800};
 constexpr int HEIGHT{600};
 constexpr int RADIUS{16};
 
-void drawRoundedBackground(SDL_Renderer* renderer, int x, int y, int w, int h, int radius, SDL_Color color) {
+void drawRoundedBackground(SDL_Renderer *renderer, int x, int y, int w, int h, int radius, SDL_Color color)
+{
     // Set color
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 
@@ -27,9 +28,12 @@ void drawRoundedBackground(SDL_Renderer* renderer, int x, int y, int w, int h, i
     SDL_RenderFillRect(renderer, &rightRect);
 
     // 2. Draw the 4 quarter circles manually
-    for (int dy = -radius; dy <= radius; ++dy) {
-        for (int dx = -radius; dx <= radius; ++dx) {
-            if (dx * dx + dy * dy <= radius * radius) {
+    for (int dy = -radius; dy <= radius; ++dy)
+    {
+        for (int dx = -radius; dx <= radius; ++dx)
+        {
+            if (dx * dx + dy * dy <= radius * radius)
+            {
                 // Top-left
                 SDL_RenderDrawPoint(renderer, x + radius + dx, y + radius + dy);
                 // Top-right
@@ -112,7 +116,7 @@ int main(int argc, char *argv[])
                     else if (inputBuffer == "help")
                         lines.push_back("Available: help, exit, version, clear");
                     else if (inputBuffer == "version")
-                        lines.push_back("Tervinal v"+std::string(Project::VERSION_STRING));
+                        lines.push_back("Tervinal v" + std::string(Project::VERSION_STRING));
                     else if (inputBuffer == "exit")
                         running = false;
                     inputBuffer.clear();
@@ -197,3 +201,7 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+#if defined(_WIN32)
+#pragma comment( linker, "/subsystem:windows" )
+#endif
