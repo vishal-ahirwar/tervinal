@@ -8,6 +8,41 @@
 #include <sstream>
 #include <algorithm>
 #include <boost/process.hpp>
+#include<tervinalconfig.h>
+constexpr int WIDTH{800};
+constexpr int HEIGHT{600};
+constexpr int RADIUS{16};
+
+void drawRoundedBackground(SDL_Renderer* renderer, int x, int y, int w, int h, int radius, SDL_Color color) {
+    // Set color
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+
+    // 1. Draw the central rectangle (minus the corners)
+    SDL_Rect centerRect = {x + radius, y, w - 2 * radius, h};
+    SDL_RenderFillRect(renderer, &centerRect);
+
+    SDL_Rect leftRect = {x, y + radius, radius, h - 2 * radius};
+    SDL_Rect rightRect = {x + w - radius, y + radius, radius, h - 2 * radius};
+    SDL_RenderFillRect(renderer, &leftRect);
+    SDL_RenderFillRect(renderer, &rightRect);
+
+    // 2. Draw the 4 quarter circles manually
+    for (int dy = -radius; dy <= radius; ++dy) {
+        for (int dx = -radius; dx <= radius; ++dx) {
+            if (dx * dx + dy * dy <= radius * radius) {
+                // Top-left
+                SDL_RenderDrawPoint(renderer, x + radius + dx, y + radius + dy);
+                // Top-right
+                SDL_RenderDrawPoint(renderer, x + w - radius + dx, y + radius + dy);
+                // Bottom-left
+                SDL_RenderDrawPoint(renderer, x + radius + dx, y + h - radius + dy);
+                // Bottom-right
+                SDL_RenderDrawPoint(renderer, x + w - radius + dx, y + h - radius + dy);
+            }
+        }
+    }
+}
+
 SDL_Texture *renderText(const std::string &text, TTF_Font *font, SDL_Color color, SDL_Renderer *renderer, SDL_Rect &outRect)
 {
     SDL_Surface *surf = TTF_RenderUTF8_Blended(font, text.c_str(), color);
@@ -31,26 +66,12 @@ std::vector<std::string> splitLines(const std::string &input)
 
 int main(int argc, char *argv[])
 {
-    try
-    {
-
-        boost::process::child c{boost::process::search_path("git"), boost::process::args({"--version"})};
-        c.wait();
-        if (c.exit_code() != 0)
-        {
-            std::cerr << "failed!\n";
-        }
-    }
-    catch (std::exception &e)
-    {
-        std::cerr << e.what() << "\n";
-    }
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
 
-    SDL_Window *window = SDL_CreateWindow("SDL Terminal", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("SDL Terminal", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_BORDERLESS | SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    TTF_Font *font = TTF_OpenFont("res/fonts/FiraCode-Regular.ttf", 22);
+    TTF_Font *font = TTF_OpenFont("res/fonts/FiraCode-Regular.ttf", 18);
     SDL_Color textColor = {0, 0, 0}, bgColor = {255, 255, 255};
 
     std::string inputBuffer;
@@ -91,7 +112,7 @@ int main(int argc, char *argv[])
                     else if (inputBuffer == "help")
                         lines.push_back("Available: help, exit, version, clear");
                     else if (inputBuffer == "version")
-                        lines.push_back("Tervinal v1.0.0");
+                        lines.push_back("Tervinal v"+std::string(Project::VERSION_STRING));
                     else if (inputBuffer == "exit")
                         running = false;
                     inputBuffer.clear();
@@ -134,8 +155,7 @@ int main(int argc, char *argv[])
             lastBlink = SDL_GetTicks();
         }
 
-        SDL_SetRenderDrawColor(renderer, bgColor.r, bgColor.g, bgColor.b, 255);
-        SDL_RenderClear(renderer);
+        drawRoundedBackground(renderer, 0, 0, WIDTH, HEIGHT, RADIUS, bgColor);
 
         int y = 10 - scrollOffset;
         for (const auto &line : lines)
@@ -166,7 +186,6 @@ int main(int argc, char *argv[])
             SDL_RenderCopy(renderer, sugTex, nullptr, &sugRect);
             SDL_DestroyTexture(sugTex);
         }
-
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
     }
