@@ -29,6 +29,8 @@ include_directories(${CMAKE_BINARY_DIR})
 configure_file(res/config.h.in tervinalconfig.h)
 
 #@find Warning: Do not remove this line
+find_package(boost_process REQUIRED CONFIG)
+find_package(Boost REQUIRED COMPONENTS process)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 
@@ -52,6 +54,7 @@ endif()
 if(NOT ENABLE_TESTS)
     add_executable(${PROJECT_NAME} "src/main.cpp")# Add your Source Files here
     #@link Warning: Do not remove this line
+    target_link_libraries(${PROJECT_NAME} PRIVATE Boost::process)
     target_link_libraries(${PROJECT_NAME}
     PRIVATE
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>

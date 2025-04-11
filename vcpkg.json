@@ -2,6 +2,7 @@
   "name": "tervinal",
   "version": "1.0.0",
   "dependencies": [
+    "boost-process",
     "sdl2",
     "sdl2-ttf"
   ]
